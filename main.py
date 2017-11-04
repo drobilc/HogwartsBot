@@ -13,6 +13,8 @@ client_secret = data['client_secret']
 username = data['username']
 password = data['password']
 
+casMedKomentarji = 10 * 60 # 10 minut
+
 db = dataset.connect('sqlite:///database.db')
 table = db.create_table('points', primary_id='comment_id', primary_type=db.types.string(20))
 
@@ -95,9 +97,9 @@ if __name__ == "__main__":
 					if userData and len(userData) > 0:
 						now = datetime.datetime.now()
 						then = datetime.datetime.fromtimestamp(userData[0]["date"])
-						pretekelCas = (then - now).total_seconds()
+						pretekelCas = abs((then - now).total_seconds())
 
-					if (pretekelCas > 60 * 60):
+					if (pretekelCas > casMedKomentarji):
 						# Insert comment into database, so we don't check it again
 						table.insert({"comment_id": comment.id, "user": commentAuthor, "points": result["points"], "house": result["house"], "date": comment.created_utc})
 						# Update scoreboard
@@ -108,6 +110,6 @@ if __name__ == "__main__":
 						else:
 							reply(comment, "Thank you **{}**, for giving **{} points** to **{}**!\n\nCurrent score is displayed below\n\n{}".format(commentAuthor, result["points"], result["house"].title(), getScoreBoard()))
 					else:
-						reply(comment, "Sorry **{}**, but you can only vote once per hour. Please try again later.".format(commentAuthor))
+						reply(comment, "Sorry **{}**, but you can only vote once every {} minutes. Please try again later.".format(commentAuthor, casMedKomentarji // 60))
 		except Exception as e:
 			print("Error({0}): {1}".format(e.errno, e.strerror))
