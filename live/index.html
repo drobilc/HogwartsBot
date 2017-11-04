@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>HogwartsBot scoreboard</title>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-109160129-1"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('config', 'UA-109160129-1');
+	</script>
+	<script src="/socket.io/socket.io.js"></script>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+		body {
+			background: #232323;
+			
+		}
+		#rezultati {
+			width: 100%;
+			display: -webkit-box;
+			display: -moz-box;
+			display: -ms-flexbox;
+			display: -webkit-flex;
+			display: flex;
+			justify-content: center;
+		}
+		.dom {
+			width: 23%;
+			min-width: 130px;
+			max-width: 200px;
+
+			margin-left: 2px;
+			margin-right: 2px;
+
+			min-height: 350px;
+
+			float: left;
+			position: relative;
+			color: white;
+			transition: all 1s;
+		}
+		#gryffindor:after,
+		#ravenclaw:after,
+		#slytherin:after,
+		#hufflepuff:after {
+			content: "";
+			position: absolute;
+			bottom: -60px;
+			left: 0;
+			width: 100%;
+			height: 100px;
+			background-repeat: no-repeat;
+			background-position: bottom center;
+		}
+		#gryffindor {
+			background: #a70c0c;
+		}
+		#ravenclaw {
+			background: #049dc6;
+		}
+		#slytherin {
+			background: #2aaa4a;
+		}
+		#hufflepuff {
+			background: #ebcf19;
+		}
+		#gryffindor:after {
+			background-image: url('slike/rds.png');
+		}
+		#ravenclaw:after {
+			background-image: url('slike/mos.png');
+		}
+		#slytherin:after {
+			background-image: url('slike/zes.png');
+		}
+		#hufflepuff:after {
+			background-image: url('slike/rus.png');
+		}
+		.dom .logo img {
+			width: 80%;
+			display: block;
+			margin: 40px auto 10px;
+		}
+		.dom .ime {
+			font-weight: bold;
+			font-family: Arial;
+			text-align: center;
+			font-size: 24px;
+		}
+		.dom .tocke {
+			font-weight: bold;
+			font-family: Arial;
+			text-align: center;
+			font-size: 46px;
+			margin-top: 10px;
+		}
+	</style>
+</head>
+<body>
+	<div id="rezultati">
+
+		<div class="dom" id="gryffindor">
+			<div class="logo"><img src="/slike/gryffindor.png"></div>
+			<div class="ime">Gryffindor</div>
+			<div class="tocke">0</div>
+		</div>
+
+		<div class="dom" id="ravenclaw">
+			<div class="logo"><img src="/slike/ravenclaw.png"></div>
+			<div class="ime">Ravenclaw</div>
+			<div class="tocke">0</div>
+		</div>
+
+		<div class="dom" id="slytherin">
+			<div class="logo"><img src="/slike/slytherin.png"></div>
+			<div class="ime">Slytherin</div>
+			<div class="tocke">0</div>
+		</div>
+
+		<div class="dom" id="hufflepuff">
+			<div class="logo"><img src="/slike/hufflepuff.png"></div>
+			<div class="ime">Hufflepuff</div>
+			<div class="tocke">0</div>
+		</div>
+		
+	</div>
+	<script>
+		var socket = io();
+
+		function prikaziDomove(domovi) {
+			var gryffindor = document.getElementById("gryffindor");
+			var ravenclaw = document.getElementById("ravenclaw");
+			var slytherin = document.getElementById("slytherin");
+			var hufflepuff = document.getElementById("hufflepuff");
+			var najmanjse = Math.min(domovi["gryffindor"], domovi["ravenclaw"], domovi["slytherin"], domovi["hufflepuff"]);
+			var najvecje = Math.max(domovi["gryffindor"], domovi["ravenclaw"], domovi["slytherin"], domovi["hufflepuff"]);
+			var oldRange = najvecje - najmanjse;
+			gryffindor.children[2].innerText = domovi["gryffindor"];
+			gryffindor.style.height = (((domovi["gryffindor"] - najmanjse) / oldRange) * 250 + 350) + "px";
+			ravenclaw.children[2].innerText = domovi["ravenclaw"];
+			ravenclaw.style.height = (((domovi["ravenclaw"] - najmanjse) / oldRange) * 250 + 350) + "px";
+			slytherin.children[2].innerText = domovi["slytherin"];
+			slytherin.style.height = (((domovi["slytherin"] - najmanjse) / oldRange) * 250 + 350) + "px";
+			hufflepuff.children[2].innerText = domovi["hufflepuff"];
+			hufflepuff.style.height = (((domovi["hufflepuff"] - najmanjse) / oldRange) * 250 + 350) + "px";
+		}
+
+		socket.on("podatki", function(domovi) {
+			prikaziDomove(domovi);
+		});
+
+	</script>
+</body>
+</html>
