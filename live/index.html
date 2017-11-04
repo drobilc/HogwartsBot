@@ -132,28 +132,33 @@
 	<script>
 		var socket = io();
 
+		function getPageHeight() {
+			var w = window, d = document, e = d.documentElement, g = d.getElementsByTagName('body')[0];
+			return w.innerHeight|| e.clientHeight|| g.clientHeight;
+		}
+
+		function nastaviTocke(dom, tocke, podatki) {
+			var oldRange = podatki.max - podatki.min;
+			var pageHeight = getPageHeight() - 350 - 100;
+			var domElement = document.getElementById(dom);
+			domElement.children[2].innerText = tocke;
+			domElement.style.height = (((tocke - podatki.min) / oldRange) * pageHeight + 350) + "px";
+		}
+
 		function prikaziDomove(domovi) {
-			var gryffindor = document.getElementById("gryffindor");
-			var ravenclaw = document.getElementById("ravenclaw");
-			var slytherin = document.getElementById("slytherin");
-			var hufflepuff = document.getElementById("hufflepuff");
 			var najmanjse = Math.min(domovi["gryffindor"], domovi["ravenclaw"], domovi["slytherin"], domovi["hufflepuff"]);
 			var najvecje = Math.max(domovi["gryffindor"], domovi["ravenclaw"], domovi["slytherin"], domovi["hufflepuff"]);
-			var oldRange = najvecje - najmanjse;
-			gryffindor.children[2].innerText = domovi["gryffindor"];
-			gryffindor.style.height = (((domovi["gryffindor"] - najmanjse) / oldRange) * 250 + 350) + "px";
-			ravenclaw.children[2].innerText = domovi["ravenclaw"];
-			ravenclaw.style.height = (((domovi["ravenclaw"] - najmanjse) / oldRange) * 250 + 350) + "px";
-			slytherin.children[2].innerText = domovi["slytherin"];
-			slytherin.style.height = (((domovi["slytherin"] - najmanjse) / oldRange) * 250 + 350) + "px";
-			hufflepuff.children[2].innerText = domovi["hufflepuff"];
-			hufflepuff.style.height = (((domovi["hufflepuff"] - najmanjse) / oldRange) * 250 + 350) + "px";
+			var podatki = {"min": najmanjse, "max": najvecje};
+			for (var imeDoma in domovi) {
+				if (domovi.hasOwnProperty(imeDoma)) {
+					nastaviTocke(imeDoma, domovi[imeDoma], podatki);
+				}
+			}
 		}
 
 		socket.on("podatki", function(domovi) {
 			prikaziDomove(domovi);
 		});
-
 	</script>
 </body>
 </html>
