@@ -99,6 +99,22 @@
 			font-size: 46px;
 			margin-top: 10px;
 		}
+		.komentar {
+			background: white;
+			width: 200px;
+			font-size: 16px;
+			font-family: 'Arial';
+			line-height: 20px;
+			padding: 4px;
+			position: absolute;
+		}
+		.komentar .avtor {
+			font-weight: bold;
+			font-size: 16px;
+			color: #369;
+			margin-left: 4px;
+			margin-right: 6px;
+		}
 	</style>
 </head>
 <body>
@@ -137,6 +153,11 @@
 			return w.innerHeight|| e.clientHeight|| g.clientHeight;
 		}
 
+		function getPageWidth() {
+			var w = window, d = document, e = d.documentElement, g = d.getElementsByTagName('body')[0];
+			return w.innerWidth || e.clientWidth || g.clientWidth;
+		}
+
 		function nastaviTocke(dom, tocke, podatki) {
 			var oldRange = podatki.max - podatki.min;
 			var pageHeight = getPageHeight() - 350 - 100;
@@ -156,8 +177,37 @@
 			}
 		}
 
+		function Sporocilo(uporabnik, besedilo) {
+			this.uporabnik = uporabnik;
+			this.besedilo = besedilo;
+			this.element = document.createElement("div");
+			this.element.className = "komentar";
+			
+			var randomAngle = Math.pow(-1, Math.floor(Math.random() * 2)) * Math.floor(Math.random() * 30);
+			var randomX = Math.floor(Math.random() * (getPageWidth() - 210));
+			var randomY = Math.floor(Math.random() * (getPageHeight() - 100));
+			this.element.style.transform = "rotate("+randomAngle+"deg)";
+			this.element.style.top = randomY + "px";
+			this.element.style.left = randomX + "px";
+			this.element.innerHTML = '<span class="avtor">' + this.uporabnik + '</span>' + this.besedilo;
+			document.body.appendChild(this.element);
+			
+			this.remove = function() {
+				this.element.parentElement.removeChild(this.element);
+			}
+			var _this = this;
+			setTimeout(function() { _this.remove(); }, 5000);	
+		}
+
 		socket.on("podatki", function(domovi) {
 			prikaziDomove(domovi);
+		});
+
+		socket.on("sporocilo", function(podatki) {
+			console.log(podatki);
+			for (var i = 0; i < podatki.length; i++) {
+				new Sporocilo(podatki[i].uporabnik, podatki[i].besedilo);
+			}
 		});
 	</script>
 </body>

@@ -52,8 +52,11 @@ def checkComment(comment):
 			return {"points": fixedPoints, "house": match.group(3).lower()}
 
 def reply(comment, text):
-	commentText = text + "\n\n" + signature
-	comment.reply(commentText)
+	try:
+		commentText = text + "\n\n" + signature
+		comment.reply(commentText)
+	except Exception as e:
+		print("Error posting comment")
 
 def getScoreBoard():
 	return scoreboard.format(**points)

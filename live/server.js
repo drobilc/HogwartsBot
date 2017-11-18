@@ -7,6 +7,8 @@ var io = require('socket.io')(http);
 var database = new sqlite3.Database("../database.db");
 var PORT = 80;
 
+var zadnjicPosodobljeno;
+
 var domovi = {
 	"gryffindor": 0,
 	"ravenclaw": 0,
@@ -20,6 +22,11 @@ var stariDomovi = {
 	"slytherin": 0,
 	"hufflepuff": 0
 };
+
+function Sporocilo(uporabnik, besedilo) {
+	this.uporabnik = uporabnik;
+	this.besedilo = besedilo;
+}
 
 function posodobiPodatke() {
 	database.each("SELECT house, SUM(points) AS points FROM points GROUP BY house", function(err, row) {
@@ -36,6 +43,21 @@ function posodobiPodatke() {
 			console.log("Podatki so bili spremenjeni!");
 		}
 	});
+
+	database.all("SELECT * FROM points WHERE date >= ?", zadnjicPosodobljeno, function(err, rows) {
+		if (rows.length < 1)
+			return;
+
+		var vsaNovaSporocila = [];
+		for (var i = 0; i < rows.length; i++) {
+			var row = rows[i];
+			vsaNovaSporocila.push(new Sporocilo(row.user, "<b>" + row.points + "</b> points to <b>" + row.house + "</b>"));
+		}
+		io.emit("sporocilo", vsaNovaSporocila);
+
+	});
+
+	zadnjicPosodobljeno = Math.floor((new Date()).getTime() / 1000)
 }
 
 app.use('/slike', express.static('slike'));
