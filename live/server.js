@@ -3,9 +3,13 @@ var sqlite3 = require('sqlite3').verbose();
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+var handlebars = require('express-handlebars');
 
 var database = new sqlite3.Database("../database.db");
 var PORT = 80;
+
+app.engine('handlebars', handlebars({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
 
 var zadnjicPosodobljeno;
 
@@ -60,9 +64,17 @@ function posodobiPodatke() {
 	zadnjicPosodobljeno = Math.floor((new Date()).getTime() / 1000)
 }
 
-app.use('/slike', express.static('slike'));
+app.use('/resources', express.static('public'));
+
 app.get('/', function(req, res) {
-	res.sendFile(__dirname + '/index.html');
+	res.render('index', {"gryffindor": domovi.gryffindor, "ravenclaw": domovi.ravenclaw, "slytherin": domovi.slytherin, "hufflepuff": domovi.hufflepuff});
+});
+
+app.get('/stats', function(req, res) {
+	database.all("SELECT user AS username, COUNT(comment_id) AS score FROM points GROUP BY user ORDER BY COUNT(comment_id) DESC LIMIT 20", function(err, rows) {
+		res.render('statistics', {"data": rows});
+	});
+	
 });
 
 io.on('connection', function(socket) {

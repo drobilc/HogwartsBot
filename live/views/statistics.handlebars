@@ -1,0 +1,14 @@
+<div id="stats">
+	<table>
+		<tr>
+			<th>Username</th>
+			<th>Score</th>
+		</tr>
+		{{#data}}
+			<tr>
+				<td><a href="https://www.reddit.com/user/{{username}}">{{username}}</a></td>
+				<td>{{score}}</td>
+			</tr>
+		{{/data}}
+	</table>
+</div>
